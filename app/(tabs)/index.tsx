@@ -19,17 +19,17 @@ function HomePageScreen(){
             <Text style={styles.subheader}>Find what's right for you today!</Text>
         </View>
 
-        {/* Image */}
+        {/* Image - Hardcoded for now*/}
         <Image style={styles.imageContainer}
         source={{
           uri: 'https://hmtnijillluuhbsrdjvq.supabase.co/storage/v1/object/public/poses/downward_dog.jpg',
         }}
         />
 
-        {/* Description */}
-        <View>
-            <Text style={styles.description}>Style: Yin</Text>
-            <Text style={styles.description}>Difficulty: Easy</Text>
+        {/* Description - hardcoded for now*/}
+        <View style={styles.description}>
+            <Text style={styles.descriptionText}>Style: Yin</Text>
+            <Text style={styles.descriptionText}>Difficulty: Easy</Text>
         </View>
     </View>
     )
@@ -51,8 +51,10 @@ const styles = StyleSheet.create({
     imageContainer:{
         marginTop: 30,
         alignSelf: 'center',
-        width: 250,
+        width: 270,
         height: 250,
+        borderRadius: 20,
+        
     },
     subheader:{
         fontSize: 15,
@@ -60,7 +62,18 @@ const styles = StyleSheet.create({
         color: '#7e86c4',
     },
     description:{
-      fontStyle: 'italic'
+      marginTop: 20,
+      backgroundColor: '#fff',
+      width: 270,
+      height: 55,
+      borderRadius: 20,
+      fontStyle: 'italic',
+      alignSelf: 'center',
+      justifyContent: 'center'
+    },
+    descriptionText: {
+      fontStyle: 'italic',
+      marginLeft: 15,
     }
     });
 export default HomePageScreen;
