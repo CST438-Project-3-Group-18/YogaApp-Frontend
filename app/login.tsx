@@ -1,29 +1,49 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View} from "react-native"
-import React, { useEffect } from 'react'
-import * as WebBrowser from "expo-web-browser";
+import * as AuthSession from 'expo-auth-session';
 import * as Google from "expo-auth-session/providers/google";
+import { useRouter } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import React, { useEffect } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const webClientID = '181456544791-52n02d9nrea84gpcin4d001513mbrfn0.apps.googleusercontent.com'
 const androidClientID = '181456544791-6h4v97c43o9phbdj8d3vmreg6f28tknm.apps.googleusercontent.com'
+const redirectURI = AuthSession.makeRedirectUri({
+    useProxy: true, // Use Expo's proxy for development
+  } as any);
 
 WebBrowser.maybeCompleteAuthSession();
 
 
 const login = () => {
+    const router = useRouter();
     const config = {
         clientId: webClientID,
-        androidClientId: androidClientID
+        androidClientId: androidClientID,
+        redirectURI : redirectURI
     }
 
     const [request, response, promptAsync] = Google.useAuthRequest(config);
 
     const handleToken = () => {
-        if(response?.type === "success"){
-            const {authentication} = response;
-            const token = authentication?.accessToken;
-            console.log("access token", token)
+        if (response?.type === "success") {
+          const { authentication } = response;
+          const token = authentication?.accessToken;
+      
+          if (token) {
+            console.log("Access token:", token);
+      
+            // Optional: store token for later use (e.g., AsyncStorage or SecureStore)
+            // await SecureStore.setItemAsync("userToken", token);
+      
+            // ✅ Navigate to the home tab (index inside your (tabs) folder)
+            router.replace("/(tabs)");
+          } else {
+            console.warn("No access token found in authentication response");
+          }
+        } else if (response?.type === "error") {
+          console.error("Google login error:", response.error);
         }
-    }
+      };
 
     useEffect(() => {
         handleToken();
