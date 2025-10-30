@@ -1,7 +1,8 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View} from "react-native"
-import React, { useEffect } from 'react'
-import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
+import { useRouter } from 'expo-router';
+import * as WebBrowser from "expo-web-browser";
+import { useEffect } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const webClientID = '181456544791-52n02d9nrea84gpcin4d001513mbrfn0.apps.googleusercontent.com'
 const androidClientID = '181456544791-6h4v97c43o9phbdj8d3vmreg6f28tknm.apps.googleusercontent.com'
@@ -17,11 +18,15 @@ const login = () => {
 
     const [request, response, promptAsync] = Google.useAuthRequest(config);
 
+    const router = useRouter();
+
     const handleToken = () => {
         if(response?.type === "success"){
             const {authentication} = response;
             const token = authentication?.accessToken;
             console.log("access token", token)
+            // Navigate to the Home screen and replace the login route so user can't go back to it
+            router.replace('/(tabs)');
         }
     }
 
