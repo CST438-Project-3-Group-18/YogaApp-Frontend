@@ -10,27 +10,29 @@ function HomePageScreen(){
     return(
     <View style={styles.page}>
         {/* Title */}
-        <View style={styles.container}>
+        <View>
             <Text style={styles.homeTitle}>Yoga & You</Text>
         </View>
 
         {/* Sub Header */}
-        <View style={styles.container}>
+        <View>
             <Text style={styles.subheader}>Find what's right for you today!</Text>
         </View>
 
-        {/* Image - Hardcoded for now*/}
-        <Image style={styles.imageContainer}
-        source={{
-          uri: 'https://hmtnijillluuhbsrdjvq.supabase.co/storage/v1/object/public/poses/downward_dog.jpg',
-        }}
-        />
+        <View style={styles.poseContainer}>
+          {/* Image - Hardcoded for now*/}
+          <Image style={styles.imageContainer}
+          source={{
+            uri: 'https://hmtnijillluuhbsrdjvq.supabase.co/storage/v1/object/public/poses/downward_dog.jpg',
+          }}
+          />
 
         {/* Description - hardcoded for now*/}
         <View style={styles.description}>
             <Text style={styles.descriptionText}>Style: Yin</Text>
             <Text style={styles.descriptionText}>Difficulty: Easy</Text>
         </View>
+    </View>
     </View>
     )
 }
@@ -39,7 +41,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fab9c8', // web-safe background
     },
-    container: {   
+    poseContainer: { 
+      backgroundColor: '#e1e3fa',
+      padding: 10,
+      alignSelf: 'center',
+      width: 300,
+      borderRadius: 20,
     },
     homeTitle:{
             fontSize: 30,
@@ -49,20 +56,22 @@ const styles = StyleSheet.create({
             color: '#7e86c4',
     },
     imageContainer:{
-        marginTop: 30,
+        marginTop: 20,
         alignSelf: 'center',
         width: 270,
         height: 250,
-        borderRadius: 20,
-        
+        borderRadius: 20,     
     },
     subheader:{
         fontSize: 15,
         textAlign: 'center',
         color: '#7e86c4',
+        marginTop: 5,
+        marginBottom: 20,
     },
     description:{
       marginTop: 20,
+      marginBottom: 15,
       backgroundColor: '#fff',
       width: 270,
       height: 55,
