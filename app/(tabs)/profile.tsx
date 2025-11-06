@@ -9,12 +9,11 @@ type Collection = {
   name: string;
 };
 
-
-const [showModal, setShowModal] = React.useState(false);
-
 function ProfileScreen() {
     //hardcoded for now
     const name = 'Yogi';
+
+    const [showModal, setShowModal] = React.useState(false);
 
     return (
     <View style={styles.page}>
@@ -36,7 +35,7 @@ function ProfileScreen() {
               pressed && { opacity: 0.95, transform: [{ scale: 0.998 }] },
             ]}
           >
-            <MaterialIcons name="add-circle" size={22} />
+            <MaterialIcons name="add-box" size={22} color="#ad2964ff" />
             <Text style={styles.addText}>Create new collection</Text>
           </Pressable>
 
@@ -54,24 +53,31 @@ function ProfileScreen() {
       fontSize: 28,
       margin: 10,
       textAlign: 'center',
+      color: '#7e86c4',
     },
     subtitle: {
       fontSize: 16,
-      color: '#555',
+      color: '#7e86c4',
       textAlign: 'center',
     },
     myCol: {
         fontSize: 22,
         fontWeight: 'bold',
         padding:30,
+        color: '#7e86c4',
     },
     addCard: {
         flexDirection: 'row',
+        backgroundColor: '#f78ba4',
+        padding: 12,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginBottom: 20,
     },
     addText: {
         fontSize: 16,
         marginLeft: 8,
-        color: '#555',
+        color: '#ad2964ff',
     },
     });
 
