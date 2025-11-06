@@ -4,9 +4,48 @@
  * Randomize button
  * Save to collection button
  */
+import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+//connect to backend
+const API_BASE = 'http://localhost:8080';
+
+type Pose = {
+  id?: number;
+  name: string;
+  image: string;
+  description: string;
+  difficulty: string;
+  style: string;
+};
+
 function HomePageScreen(){
+  //onCreate setup
+  const [pose, setPose] = useState<Pose>({
+  id: undefined,
+  name: '',
+  image: '',
+  description: '',
+  difficulty: '',
+  style: '',
+});
+
+
+  const fetchRandomPose = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/poses/random`);
+      const data = await res.json();
+      setPose(data);
+    } catch (e) {
+      console.error('Error fetching random pose:', e);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchRandomPose();
+  }, []);
+
     return(
     <View style={styles.page}>
         {/* Title */}
@@ -20,28 +59,30 @@ function HomePageScreen(){
         </View>
 
         {/* Randomize Button */}
-        <TouchableOpacity style={styles.randButton} onPress={() => console.log('Pressed!')}>
+        <TouchableOpacity style={styles.randButton} onPress={fetchRandomPose}>
           <Text style={styles.randButtonText}>New Pose!</Text>
         </TouchableOpacity>
 
         <View style={styles.poseContainer}>
           {/* Name - Hardcoded for now*/}
-          <Text style={styles.poseName}>Downward Dog</Text>
+          <Text style={styles.poseName}>{pose.name}</Text>
           {/* Image - Hardcoded for now*/}
           <Image style={styles.imageContainer}
           source={{
-            uri: 'https://hmtnijillluuhbsrdjvq.supabase.co/storage/v1/object/public/poses/downward_dog.jpg',
+            uri: pose.image
           }}
+          resizeMode="contain"
           />
         {/* Description - Hardcoded for now*/}  
-        <Text style={styles.desc}>A foundational pose that lengthens the spine and strengthens the arms and legs.</Text>
+        <Text style={styles.desc}>{pose.description}</Text>
 
         {/* Style/Difficulty - hardcoded for now*/}
         <View style={styles.level}>
-            <Text style={styles.levelText}>Style: Yin</Text>
-            <Text style={styles.levelText}>Difficulty: Easy</Text>
+            <Text style={styles.levelText}>Style: {pose.style}</Text>
+            <Text style={styles.levelText}>Difficulty: {pose.difficulty}</Text>
         </View>
     </View>
+
 
     {/* Save Button */}
         <TouchableOpacity style={styles.saveButton} onPress={() => console.log('Pressed!')}>
