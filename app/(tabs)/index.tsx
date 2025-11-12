@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 //connect to backend
-const API_BASE = 'http://localhost:8080';
+const API_BASE = 'http://10.0.2.2:8080';
 
 type Pose = {
   id?: number;
@@ -55,7 +55,7 @@ function HomePageScreen(){
 
         {/* Sub Header */}
         <View>
-            <Text style={styles.subheader}>Find what's right for you today!</Text>
+            <Text style={styles.subheader}>Find what&apos;s right for you today!</Text>
         </View>
 
         {/* Randomize Button */}
