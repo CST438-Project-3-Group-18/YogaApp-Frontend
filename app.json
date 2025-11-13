@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "yogaappfrontend",
+    "scheme": "com.danie.yogaapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -27,7 +27,6 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
       [
         "expo-splash-screen",
         {
@@ -42,12 +41,14 @@
       ],
       "expo-web-browser"
     ],
+
+    "router": { "origin": "classic" },
+
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
     "extra": {
-      "router": {},
       "eas": {
         "projectId": "2e2c67a6-7b57-4f79-9e1a-38e64da59312"
       }
