@@ -4,21 +4,23 @@
  * Randomize button
  * Save to collection button
  */
-import * as React from 'react';
-import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Toast from 'react-native-root-toast';
-// (tabs)/index.tsx
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import {
+  Alert,
   Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  StatusBar,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import Toast from 'react-native-root-toast';
 
 const API_BASE = 'http://10.0.2.2:8080';
 
@@ -30,7 +32,8 @@ type Pose = {
   difficulty: string;
   style: string;
 };
-type Collection = { id: number; user_id: number; name: string; };
+
+type Collection = { id: number; user_id: number; name: string };
 
 type SavePoseModalProps = {
   visible: boolean;
@@ -39,14 +42,13 @@ type SavePoseModalProps = {
 };
 
 function SavePoseModal({ visible, onClose, poseId }: SavePoseModalProps) {
-  const [loading, setLoading] = React.useState(false);
-  const [collections, setCollections] = React.useState<Collection[]>([]);
-  const userId = 0; // hardcoded for now
+  const [loading, setLoading] = useState(false);
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const userId = 0; // TODO: replace with real user id
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!visible) return;
-    // fetch collections for user 0 — you already have repo findByUserId
-    // Make sure you expose GET /collections?userId=0 in your controller
+
     (async () => {
       try {
         const res = await fetch(`${API_BASE}/collections?userId=${userId}`, {
@@ -78,13 +80,13 @@ function SavePoseModal({ visible, onClose, poseId }: SavePoseModalProps) {
           animation: true,
           hideOnPress: true,
           delay: 0,
-          backgroundColor: '#7e86c4', // matches your palette
+          backgroundColor: '#7e86c4',
           textColor: '#fff',
         });
         onClose();
         return;
       }
-      const text = await res.text();
+
       if (res.status === 409) {
         Toast.show('⚠️ Pose already in that collection.', {
           duration: Toast.durations.SHORT,
@@ -142,10 +144,8 @@ function SavePoseModal({ visible, onClose, poseId }: SavePoseModalProps) {
 }
 
 function HomePageScreen() {
-  //onCreate setup
-  const [pose, setPose] = React.useState<Pose>({
-export default function HomePageScreen() {
   const navigation = useNavigation<any>();
+
   const [pose, setPose] = useState<Pose>({
     id: undefined,
     name: '',
@@ -155,9 +155,7 @@ export default function HomePageScreen() {
     style: '',
   });
 
-  //save modal
-  const [saveVisible, setSaveVisible] = React.useState(false);
-
+  const [saveVisible, setSaveVisible] = useState(false);
 
   const fetchRandomPose = async () => {
     try {
@@ -169,24 +167,6 @@ export default function HomePageScreen() {
     }
   };
 
-
-  React.useEffect(() => {
-    fetchRandomPose();
-  }, []);
-
-  return (
-    <View style={styles.page}>
-      {/* Title */}
-      <View>
-        <Text style={styles.homeTitle}>Yoga & You</Text>
-      </View>
-
-      {/* Sub Header */}
-      <View>
-        <Text style={styles.subheader}>Find what's right for you today!</Text>
-      </View>
-
-      {/* Randomize Button */}
   useEffect(() => {
     fetchRandomPose();
   }, []);
@@ -213,29 +193,22 @@ export default function HomePageScreen() {
 
   return (
     <View style={styles.page}>
-      {/* Floating Logout — always visible */}
+      {/* Floating Logout */}
       <TouchableOpacity onPress={handleLogout} style={styles.floatingLogout}>
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
 
+      {/* Title + subheader */}
       <Text style={styles.homeTitle}>Yoga & You</Text>
       <Text style={styles.subheader}>Find what&apos;s right for you today!</Text>
 
+      {/* Randomize */}
       <TouchableOpacity style={styles.randButton} onPress={fetchRandomPose}>
         <Text style={styles.randButtonText}>New Pose!</Text>
       </TouchableOpacity>
 
+      {/* Pose card */}
       <View style={styles.poseContainer}>
-        {/* Name - Hardcoded for now*/}
-        <Text style={styles.poseName}>{pose.name}</Text>
-        {/* Image - Hardcoded for now*/}
-        <Image style={styles.imageContainer}
-          source={{
-            uri: pose.image
-          }}
-          resizeMode="contain"
-        />
-        {/* Description - Hardcoded for now*/}
         <Text style={styles.poseName}>{pose.name}</Text>
         <Image style={styles.imageContainer} source={{ uri: pose.image }} resizeMode="contain" />
         <Text style={styles.desc}>{pose.description}</Text>
@@ -245,8 +218,7 @@ export default function HomePageScreen() {
         </View>
       </View>
 
-
-      {/* Save Button */}
+      {/* Save */}
       <Pressable onPress={() => setSaveVisible(true)} style={styles.saveButton}>
         <Text style={styles.saveButtonText}>Save pose to collection</Text>
       </Pressable>
@@ -256,76 +228,29 @@ export default function HomePageScreen() {
         onClose={() => setSaveVisible(false)}
         poseId={pose?.id ?? -1}
       />
-
-      <TouchableOpacity style={styles.saveButton} onPress={() => console.log('Pressed!')}>
-        <Text style={styles.saveButtonText}>Save Pose to Collection</Text>
-      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    backgroundColor: '#fab9c8', // web-safe background
+  page: { flex: 1, backgroundColor: '#fab9c8' },
+
+  floatingLogout: {
+    position: 'absolute',
+    top: (StatusBar.currentHeight || 0) + 10,
+    right: 12,
+    zIndex: 1000,
+    backgroundColor: '#7e86c4',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 18,
+    elevation: 4,
   },
-  poseContainer: {
-    backgroundColor: '#e1e3fa',
-    padding: 10,
-    alignSelf: 'center',
-    width: 300,
-    borderRadius: 20,
-    marginBottom: 20,
-  },
-  poseName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#7e86c4',
-    textAlign: 'center',
-    marginTop: 10,
-  },
-  desc: {
-    fontSize: 15,
-    color: '#7e86c4',
-    marginTop: 15,
-    paddingHorizontal: 10,
-  },
-  homeTitle: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 30,
-    color: '#7e86c4',
-  },
-  imageContainer: {
-    marginTop: 20,
-    alignSelf: 'center',
-    width: 270,
-    height: 250,
-    borderRadius: 20,
-  },
-  subheader: {
-    fontSize: 15,
-    textAlign: 'center',
-    color: '#7e86c4',
-    marginTop: 5,
-    marginBottom: 20,
-  },
-  level: {
-    marginTop: 20,
-    marginBottom: 15,
-    backgroundColor: '#fff',
-    width: 270,
-    height: 55,
-    borderRadius: 20,
-    fontStyle: 'italic',
-    alignSelf: 'center',
-    justifyContent: 'center'
-  },
-  levelText: {
-    fontStyle: 'italic',
-    marginLeft: 15,
-  },
+  logoutText: { color: '#fff', fontWeight: 'bold' },
+
+  homeTitle: { fontSize: 30, fontWeight: 'bold', textAlign: 'center', marginTop: 40, color: '#7e86c4' },
+  subheader: { fontSize: 15, textAlign: 'center', color: '#7e86c4', marginTop: 5, marginBottom: 20 },
+
   randButton: {
     backgroundColor: '#f78ba4',
     padding: 10,
@@ -334,26 +259,35 @@ const styles = StyleSheet.create({
     width: 150,
     alignSelf: 'center',
   },
-  randButtonText: {
-    color: '#faf2f4',
-    fontWeight: 'bold',
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  saveButton: {
-    backgroundColor: '#7e86c4',
+  randButtonText: { color: '#faf2f4', fontWeight: 'bold', fontSize: 18, textAlign: 'center' },
+
+  poseContainer: {
+    backgroundColor: '#e1e3fa',
     padding: 10,
-    borderRadius: 20,
-    width: 250,
     alignSelf: 'center',
+    width: 300,
+    borderRadius: 20,
+    marginBottom: 20,
   },
-  saveButtonText: {
-    color: '#faf2f4',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    padding: 5,
-    fontSize: 18,
+  poseName: { fontSize: 22, fontWeight: 'bold', color: '#7e86c4', textAlign: 'center', marginTop: 10 },
+  imageContainer: { marginTop: 20, alignSelf: 'center', width: 270, height: 250, borderRadius: 20 },
+  desc: { fontSize: 15, color: '#7e86c4', marginTop: 15, paddingHorizontal: 10 },
+
+  level: {
+    marginTop: 20,
+    marginBottom: 15,
+    backgroundColor: '#fff',
+    width: 270,
+    height: 55,
+    borderRadius: 20,
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
+  levelText: { fontStyle: 'italic', marginLeft: 15 },
+
+  saveButton: { backgroundColor: '#7e86c4', padding: 10, borderRadius: 20, width: 250, alignSelf: 'center' },
+  saveButtonText: { color: '#faf2f4', fontWeight: 'bold', textAlign: 'center', padding: 5, fontSize: 18 },
+
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.35)',
@@ -393,30 +327,5 @@ const styles = StyleSheet.create({
   },
   closeText: { color: '#ad2964ff', fontWeight: '700' },
 });
+
 export default HomePageScreen;
-  page: { flex: 1, backgroundColor: '#fab9c8' },
-  floatingLogout: {
-    position: 'absolute',
-    top: (StatusBar.currentHeight || 0) + 10,
-    right: 12,
-    zIndex: 1000,
-    backgroundColor: '#7e86c4',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 18,
-    elevation: 4,
-  },
-  logoutText: { color: '#fff', fontWeight: 'bold' },
-  homeTitle: { fontSize: 30, fontWeight: 'bold', textAlign: 'center', marginTop: 40, color: '#7e86c4' },
-  subheader: { fontSize: 15, textAlign: 'center', color: '#7e86c4', marginTop: 5, marginBottom: 20 },
-  randButton: { backgroundColor: '#f78ba4', padding: 10, marginBottom: 20, borderRadius: 20, width: 150, alignSelf: 'center' },
-  randButtonText: { color: '#faf2f4', fontWeight: 'bold', fontSize: 18, textAlign: 'center' },
-  poseContainer: { backgroundColor: '#e1e3fa', padding: 10, alignSelf: 'center', width: 300, borderRadius: 20, marginBottom: 20 },
-  poseName: { fontSize: 22, fontWeight: 'bold', color: '#7e86c4', textAlign: 'center', marginTop: 10 },
-  imageContainer: { marginTop: 20, alignSelf: 'center', width: 270, height: 250, borderRadius: 20 },
-  desc: { fontSize: 15, color: '#7e86c4', marginTop: 15, paddingHorizontal: 10 },
-  level: { marginTop: 20, marginBottom: 15, backgroundColor: '#fff', width: 270, height: 55, borderRadius: 20, alignSelf: 'center', justifyContent: 'center' },
-  levelText: { fontStyle: 'italic', marginLeft: 15 },
-  saveButton: { backgroundColor: '#7e86c4', padding: 10, borderRadius: 20, width: 250, alignSelf: 'center' },
-  saveButtonText: { color: '#faf2f4', fontWeight: 'bold', textAlign: 'center', padding: 5, fontSize: 18 },
-});

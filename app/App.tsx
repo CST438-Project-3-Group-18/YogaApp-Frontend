@@ -1,16 +1,19 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
-  NavigationContainer,
-  NavigationIndependentTree,
+  NavigationContainer
 } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as AuthSession from 'expo-auth-session';
 import * as Google from 'expo-auth-session/providers/google';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import HomeScreen from './(tabs)/index';
+import ExploreScreen from './(tabs)/explore';
+import HomePageScreen from './(tabs)/index';
+import ProfileScreen from './(tabs)/profile';
+
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -94,19 +97,83 @@ function LoginScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 
   );
 }
 
+// export default function App() {
+//   return (
+//     <NavigationContainer>
+//       <Stack.Navigator initialRouteName="Login">
+//         <Stack.Screen
+//           name="Login"
+//           component={LoginScreen}
+//           options={{ headerShown: false }}
+//         />
+
+//         {/* Use render-prop to wrap Home in an independent tree AND forward props */}
+//         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+
+//       </Stack.Navigator>
+//     </NavigationContainer>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   wrapper: {
+//     flex: 1,
+//     backgroundColor: '#F2F6FF',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     paddingHorizontal: 30,
+//   },
+//   title: {
+//     fontSize: 28,
+//     fontWeight: '700',
+//     color: '#1A237E',
+//     marginBottom: 10,
+//   },
+//   subtitle: {
+//     fontSize: 16,
+//     color: '#5C6BC0',
+//     marginBottom: 40,
+//   },
+//   googleButton: {
+//     backgroundColor: '#4285F4',
+//     paddingVertical: 14,
+//     paddingHorizontal: 40,
+//     borderRadius: 8,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 4 },
+//     shadowOpacity: 0.2,
+//     shadowRadius: 4,
+//     elevation: 3,
+//   },
+//   buttonText: {
+//     color: '#fff',
+//     fontWeight: '600',
+//     fontSize: 16,
+//   },
+// });
+// 🚩 Define your tab navigator here (no Expo Router involved)
+const Tab = createBottomTabNavigator();
+function HomeTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        // You can style tab bar here: tabBarActiveTintColor, tabBarStyle, etc.
+      }}
+    >
+      <Tab.Screen name="HomeTab" component={HomePageScreen} options={{ title: 'Home' }} />
+      <Tab.Screen name="ExploreTab" component={ExploreScreen} options={{ title: 'Explore' }} />
+      <Tab.Screen name="ProfileTab" component={ProfileScreen} options={{ title: 'Profile' }} />
+    </Tab.Navigator>
+  );
+}
+
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-
-        {/* Use render-prop to wrap Home in an independent tree AND forward props */}
-        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-
+      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Home" component={HomeTabs} /> 
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -120,31 +187,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 30,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#1A237E',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#5C6BC0',
-    marginBottom: 40,
-  },
+  title: { fontSize: 28, fontWeight: '700', color: '#1A237E', marginBottom: 10 },
+  subtitle: { fontSize: 16, color: '#5C6BC0', marginBottom: 40 },
   googleButton: {
     backgroundColor: '#4285F4',
     paddingVertical: 14,
     paddingHorizontal: 40,
     borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
     elevation: 3,
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-  },
+  buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
 });
