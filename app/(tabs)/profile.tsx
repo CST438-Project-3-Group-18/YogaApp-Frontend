@@ -9,6 +9,17 @@ type Collection = {
   name: string;
 };
 
+//pose items
+type PoseItem = {
+  id: number;
+  name: string;
+  style: string;
+  difficulty: string;
+  position: number;
+  description?: string;
+  imageUrl?: string;
+};
+
 function ProfileScreen() {
   //hardcoded for now, will change later
   const name = 'Yogi';
@@ -24,7 +35,7 @@ function ProfileScreen() {
   // items modal
   const [itemsVisible, setItemsVisible] = React.useState(false);
   const [selectedCollection, setSelectedCollection] = React.useState<Collection | null>(null);
-  const [selectedItems, setSelectedItems] = React.useState<any>(null);
+  const [selectedItems, setSelectedItems] = React.useState<PoseItem[]>([]);
 
   //get existing collections
   async function fetchCollections() {
@@ -62,11 +73,19 @@ function ProfileScreen() {
       const res = await fetch(`http://localhost:8080/collections/${col.id}/items`, {
         headers: { Accept: 'application/json' },
       });
+      if (!res.ok) {
+        console.error('Items fetch failed', res.status, await res.text());
+        setSelectedItems([]);
+        return;
+      }
+
       const data = await res.json();
-      setSelectedItems(data);
+      const items: PoseItem[] = Array.isArray(data) ? data : (data.items ?? []);
+      items.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+      setSelectedItems(items);
     } catch (e) {
       console.error('Error fetching collection items:', e);
-      setSelectedItems({ error: 'Failed to load items' });
+      setSelectedItems([]);
     }
   }
 
@@ -179,10 +198,21 @@ function ProfileScreen() {
             <Text style={styles.modalTitle}>
               {selectedCollection ? selectedCollection.name : 'Collection'}
             </Text>
-            <ScrollView style={styles.itemsScroll}>
-              <Text style={styles.jsonText}>
-                {JSON.stringify(selectedItems ?? {}, null, 2)}
-              </Text>
+            <ScrollView style={styles.itemsScroll} contentContainerStyle={{ paddingBottom: 12 }}>
+              {(selectedItems?.length ?? 0) === 0 ? (
+                <Text style={{ color: '#7e86c4' }}>No items found.</Text>
+              ) : (
+                selectedItems.map((p: PoseItem) => (
+                  <View key={p.id} style={styles.poseCard}>
+                    <Text style={styles.poseTitle}>{p.name}</Text>
+                    {p.description ? <Text style={styles.poseDesc}>{p.description}</Text> : null}
+                    <View style={styles.poseMeta}>
+                      <Text style={styles.metaItalic}>Style: {p.style}</Text>
+                      <Text style={styles.metaItalic}>Difficulty: {p.difficulty}</Text>
+                    </View>
+                  </View>
+                ))
+              )}
             </ScrollView>
             <Pressable style={styles.closeBtn} onPress={() => setItemsVisible(false)}>
               <Text style={styles.closeText}>Close</Text>
@@ -327,6 +357,32 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   closeText: { color: '#ad2964ff', fontWeight: '700' },
+  poseCard: {
+    backgroundColor: '#e1e3fa',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  poseTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#7e86c4',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  poseDesc: { color: '#7e86c4', marginBottom: 10 },
+  poseMeta: {
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  metaItalic: { fontStyle: 'italic', color: '#333' },
+
 });
 
 export default ProfileScreen;
