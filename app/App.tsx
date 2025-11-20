@@ -105,13 +105,8 @@ export default function App() {
         />
 
         {/* Use render-prop to wrap Home in an independent tree AND forward props */}
-        <Stack.Screen name="Home">
-          {(props) => (
-            <NavigationIndependentTree>
-              <HomeScreen {...props} />
-            </NavigationIndependentTree>
-          )}
-        </Stack.Screen>
+        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
