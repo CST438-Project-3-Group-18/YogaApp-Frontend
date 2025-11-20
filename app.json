@@ -39,11 +39,12 @@
           }
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-secure-store"
     ],
-
-    "router": { "origin": "classic" },
-
+    "router": {
+      "origin": "classic"
+    },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
