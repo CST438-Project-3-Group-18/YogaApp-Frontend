@@ -22,7 +22,8 @@ import {
 } from 'react-native';
 import Toast from 'react-native-root-toast';
 
-const API_BASE = 'http://10.0.2.2:8080';
+const API_BASE ='http://localhost:8080';
+
 
 type Pose = {
   id?: number;

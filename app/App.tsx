@@ -13,12 +13,17 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ExploreScreen from './(tabs)/explore';
 import HomePageScreen from './(tabs)/index';
 import ProfileScreen from './(tabs)/profile';
+import LocalLoginScreen from "./locallogin";
+import SignupScreen from "./signup";
+
 
 
 WebBrowser.maybeCompleteAuthSession();
 
 export type RootStackParamList = {
   Login: undefined;
+  LocalLogin: undefined;
+  Signup: undefined;
   Home: undefined;
   Profile: undefined;
 };
@@ -84,6 +89,7 @@ function LoginScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 
       <Text style={styles.title}>Welcome to YogaApp</Text>
       <Text style={styles.subtitle}>Sign in to continue</Text>
 
+      {/*sign in with google button*/}
       <TouchableOpacity
         style={styles.googleButton}
         onPress={() => authRequest && triggerAuth()}
@@ -91,6 +97,26 @@ function LoginScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 
       >
         <Text style={styles.buttonText}>Continue with Google</Text>
       </TouchableOpacity>
+
+      <View style={{ height: 15 }} />
+
+      {/* LOGIN BUTTON */}
+<TouchableOpacity
+  style={styles.googleButton}
+  onPress={() => navigation.navigate("LocalLogin")}
+>
+  <Text style={styles.buttonText}>Login</Text>
+</TouchableOpacity>
+
+<View style={{ height: 15 }} />
+
+{/* CREATE ACCOUNT BUTTON */}
+<TouchableOpacity
+  style={styles.googleButton}
+  onPress={() => navigation.navigate("Signup")}
+>
+  <Text style={styles.buttonText}>Create Account</Text>
+</TouchableOpacity>
 
       <StatusBar style="auto" />
     </View>
@@ -173,6 +199,8 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
+         <Stack.Screen name="LocalLogin" component={LocalLoginScreen} />
+        <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="Home" component={HomeTabs} /> 
       </Stack.Navigator>
     </NavigationContainer>
