@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = 'http://10.0.2.2:8080';
 
 type Collection = {
   id: number;
