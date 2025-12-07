@@ -1,15 +1,24 @@
 import { MaterialIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as React from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, } from 'react-native';
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
+const API_BASE = 'http://localhost:8080';
 
 type Collection = {
   id: number;
-  user_id: string;
+  user_id: number;
   name: string;
 };
 
-//pose items
 type PoseItem = {
   id: number;
   name: string;
@@ -20,10 +29,16 @@ type PoseItem = {
   imageUrl?: string;
 };
 
+type UserInfo = {
+  id: number | string;
+  name?: string;
+  email?: string;
+};
+
 function ProfileScreen() {
-  //hardcoded for now, will change later
-  const name = 'Yogi';
-  const userId = '0';
+  // user from AsyncStorage
+  const [user, setUser] = React.useState<UserInfo | null>(null);
+  const [loadingUser, setLoadingUser] = React.useState(true);
 
   // state
   const [collections, setCollections] = React.useState<Collection[]>([]);
@@ -37,40 +52,81 @@ function ProfileScreen() {
   const [selectedCollection, setSelectedCollection] = React.useState<Collection | null>(null);
   const [selectedItems, setSelectedItems] = React.useState<PoseItem[]>([]);
 
-  //get existing collections
-  async function fetchCollections() {
+  // ---------- load current user ----------
+  React.useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const stored = await AsyncStorage.getItem('@user_info');
+        if (stored) {
+          const parsed: UserInfo = JSON.parse(stored);
+          setUser(parsed);
+        }
+      } catch (e) {
+        console.error('Error loading user from storage:', e);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+    loadUser();
+  }, []);
+
+  const userId =
+    user?.id != null
+      ? typeof user.id === 'string'
+        ? Number(user.id)
+        : user.id
+      : null;
+
+  const displayName = user?.name || user?.email || 'Yogi';
+
+  // ---------- get existing collections for this user ----------
+  async function fetchCollections(currentUserId: number) {
     try {
-      const res = await fetch('http://localhost:8080/collections', {
+      const res = await fetch(`${API_BASE}/collections/user/${currentUserId}`, {
         headers: { Accept: 'application/json' },
       });
       const data = await res.json();
-      setCollections(data || []);
-    }
-    catch (e) {
+      setCollections(Array.isArray(data) ? data : []);
+    } catch (e) {
       console.error('Error fetching collections:', e);
     }
   }
-  //create new collection
+
+  // run when userId is available
+  React.useEffect(() => {
+    if (userId == null) return;
+    fetchCollections(userId);
+  }, [userId]);
+
+  // ---------- create new collection ----------
   async function createCollection(name: string) {
+    if (userId == null) {
+      console.error('No userId – cannot create collection');
+      return;
+    }
+
     try {
-      await fetch('http://localhost:8080/collections', {
+      await fetch(`${API_BASE}/collections`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, user_id: userId }),
+        body: JSON.stringify({
+          name,
+          user_id: userId, 
+        }),
       });
-      // refresh list
-      await fetchCollections();
+
+      await fetchCollections(userId); // reload list
     } catch (e) {
       console.error('Error creating collection:', e);
     }
   }
 
-  // open modal to show a collection's items
+  // ---------- open modal to show a collection's items ----------
   async function openItemsModal(col: Collection) {
     setSelectedCollection(col);
     setItemsVisible(true);
     try {
-      const res = await fetch(`http://localhost:8080/collections/${col.id}/items`, {
+      const res = await fetch(`${API_BASE}/collections/${col.id}/items`, {
         headers: { Accept: 'application/json' },
       });
       if (!res.ok) {
@@ -89,16 +145,28 @@ function ProfileScreen() {
     }
   }
 
-  React.useEffect(() => {
-    fetchCollections();
-  }, []);
+  // ---------- loading / no-user states ----------
+  if (loadingUser) {
+    return (
+      <View style={[styles.page, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ color: '#7e86c4' }}>Loading your profile...</Text>
+      </View>
+    );
+  }
 
+  if (userId == null) {
+    return (
+      <View style={[styles.page, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ color: '#7e86c4' }}>No user logged in.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.page}>
       {/* Header */}
       <Text style={styles.hello}>
-        Hello, <Text>{name}</Text>! 🙏
+        Hello, <Text>{displayName}</Text>! 🙏
       </Text>
       <Text style={styles.subtitle}>
         ✨Take a look at what collections are in store for you today!✨
@@ -223,6 +291,7 @@ function ProfileScreen() {
     </View>
   );
 }
+
 
 //stylesheet
 const styles = StyleSheet.create({

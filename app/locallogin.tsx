@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -18,7 +19,15 @@ export default function LocalLoginScreen({ navigation }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Login failed");
+      // Save user info for other screens (Profile, Collections, etc.)
+      const userInfo = {
+        id: data.user.id,      // backend sends { user: { id, name }, sessionToken }
+        name: data.user.name,
+        sessionToken: data.sessionToken,
+        authType: "local",
+      };
 
+      await AsyncStorage.setItem("@user_info", JSON.stringify(userInfo));
       setMessage("Login successful!");
       navigation.replace("Home");
     } catch (err: any) {
