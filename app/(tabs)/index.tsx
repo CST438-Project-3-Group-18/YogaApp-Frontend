@@ -45,17 +45,39 @@ type SavePoseModalProps = {
 function SavePoseModal({ visible, onClose, poseId }: SavePoseModalProps) {
   const [loading, setLoading] = useState(false);
   const [collections, setCollections] = useState<Collection[]>([]);
-  const userId = 0; // TODO: replace with real user id
 
   useEffect(() => {
     if (!visible) return;
 
     (async () => {
       try {
+        // 1️⃣ load current user from AsyncStorage
+        const stored = await AsyncStorage.getItem('@user_info');
+        if (!stored) {
+          console.warn('No @user_info found, cannot load collections for user');
+          setCollections([]);
+          return;
+        }
+
+        const parsed = JSON.parse(stored);
+        const rawId = parsed.id;
+        const userId =
+          rawId != null
+            ? typeof rawId === 'string'
+              ? Number(rawId)
+              : rawId
+            : null;
+
+        if (userId == null || Number.isNaN(userId)) {
+          console.warn('Invalid userId in @user_info:', rawId);
+          setCollections([]);
+          return;
+        }
+
+        // 2️⃣ fetch collections for that user
         const res = await fetch(`${API_BASE}/collections/user/${userId}`, {
           headers: { Accept: 'application/json' },
         });
-
         const data = await res.json();
         setCollections(Array.isArray(data) ? data : []);
       } catch (e) {
