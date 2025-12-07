@@ -22,7 +22,7 @@ import {
 } from 'react-native';
 import Toast from 'react-native-root-toast';
 
-const API_BASE ='http://localhost:8080';
+const API_BASE = 'http://localhost:8080';
 
 
 type Pose = {
@@ -52,9 +52,10 @@ function SavePoseModal({ visible, onClose, poseId }: SavePoseModalProps) {
 
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/collections?userId=${userId}`, {
+        const res = await fetch(`${API_BASE}/collections/user/${userId}`, {
           headers: { Accept: 'application/json' },
         });
+
         const data = await res.json();
         setCollections(Array.isArray(data) ? data : []);
       } catch (e) {
@@ -70,7 +71,7 @@ function SavePoseModal({ visible, onClose, poseId }: SavePoseModalProps) {
       const res = await fetch(`${API_BASE}/collections/${collectionId}/items`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ poseId }),
+        body: JSON.stringify({ poseId }), // poseId: currentPose.id
       });
 
       if (res.status === 201) {
@@ -182,7 +183,7 @@ function HomePageScreen() {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `token=${encodeURIComponent(token)}`,
           });
-        } catch {}
+        } catch { }
       }
       await AsyncStorage.removeItem('google_access_token');
       await AsyncStorage.removeItem('@user_info');
