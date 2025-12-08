@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
-const API_BASE = "http://10.0.2.2:8080";
+const API_BASE = "http://localhost:8080";
 
 export default function SignupScreen({ navigation }) {
   const [name, setName] = useState("");
