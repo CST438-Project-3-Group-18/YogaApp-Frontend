@@ -47,7 +47,7 @@ export default function SignupScreen({ navigation }) {
         onChangeText={setPassword}
       />
 
-      <Button title="Create Account" onPress={signup} />
+      <Button title="Create Account" onPress={signup} testID="signup-create-account-button"/>
     </View>
   );
 }
