@@ -32,7 +32,7 @@ describe('LocalLoginScreen', () => {
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8080/auth/login',
+        'http://10.0.2.2:8080/auth/login',
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

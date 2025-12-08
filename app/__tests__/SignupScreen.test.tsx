@@ -29,7 +29,7 @@ describe('SignupScreen', () => {
 
     expect(msg).toBeTruthy();
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:8080/auth/signup',
+      'http://10.0.2.2:8080/auth/signup',
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -30,7 +30,7 @@ describe('ProfileScreen', () => {
     expect(msg).toBeTruthy();
 
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:8080/collections/user/1',
+      'http://10.0.2.2:8080/collections/user/1',
       expect.objectContaining({
         headers: { Accept: 'application/json' },
       })
@@ -59,7 +59,7 @@ describe('ProfileScreen', () => {
     expect(queryByText('No collections yet.')).toBeNull();
 
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:8080/collections/user/1',
+      'http://10.0.2.2:8080/collections/user/1',
       expect.objectContaining({
         headers: { Accept: 'application/json' },
       })

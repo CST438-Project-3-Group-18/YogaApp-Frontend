@@ -36,6 +36,6 @@ describe('HomePageScreen', () => {
 
     const poseName = await findByText('Downward Dog');
     expect(poseName).toBeTruthy();
-    expect(global.fetch).toHaveBeenCalledWith('http://localhost:8080/poses/random');
+    expect(global.fetch).toHaveBeenCalledWith('http://10.0.2.2:8080/poses/random');
   });
 });
