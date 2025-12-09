@@ -16,8 +16,6 @@ import ProfileScreen from './(tabs)/profile';
 import LocalLoginScreen from "./locallogin";
 import SignupScreen from "./signup";
 
-
-
 WebBrowser.maybeCompleteAuthSession();
 
 export type RootStackParamList = {
@@ -30,10 +28,16 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+const GITHUB_CLIENT_ID = 'Ov23li6QVNUVNOswRlgd';
+const githubDiscovery = {
+  authorizationEndpoint: 'https://github.com/login/oauth/authorize',
+  tokenEndpoint: 'https://github.com/login/oauth/access_token',
+};
+
 function LoginScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Login'>) {
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-  const redirectUri = AuthSession.makeRedirectUri({ native: 'com.danie.yogaapp://'});
+  const redirectUri = AuthSession.makeRedirectUri({ native: 'com.danie.yogaapp://' });
   console.log('Redirect URI at runtime ->', redirectUri);
 
   const [authRequest, authResponse, triggerAuth] = Google.useAuthRequest({
@@ -43,7 +47,16 @@ function LoginScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 
       '181456544791-52n02d9nrea84gpcin4d001513mbrfn0.apps.googleusercontent.com',
     redirectUri,
   });
-  
+
+  const [githubRequest, githubResponse, triggerGithubAuth] =
+    AuthSession.useAuthRequest(
+      {
+        clientId: GITHUB_CLIENT_ID,
+        scopes: ['read:user', 'user:email'],
+        redirectUri, // same redirect URI; must match what you set in GitHub
+      },
+      githubDiscovery
+    );
 
   useEffect(() => {
     if (authResponse?.type === 'success') {
@@ -57,6 +70,26 @@ function LoginScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 
     }
     restoreUserFromStorage();
   }, [authResponse]);
+
+  useEffect(() => {
+    const handleGithub = async () => {
+      if (githubResponse?.type === 'success') {
+        const { code } = githubResponse.params as { code?: string };
+        console.log('GitHub code:', code);
+
+        const githubUser = { provider: 'github', code };
+        try {
+          setCurrentUser(githubUser);
+          await AsyncStorage.setItem('@user_info', JSON.stringify(githubUser));
+        } catch (e) {
+          console.log('Error saving GitHub user:', e);
+        }
+        navigation.replace('Home');
+      }
+    };
+
+    handleGithub();
+  }, [githubResponse]);
 
   const restoreUserFromStorage = async () => {
     try {
@@ -89,7 +122,7 @@ function LoginScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 
       <Text style={styles.title}>Welcome to YogaApp</Text>
       <Text style={styles.subtitle}>Sign in to continue</Text>
 
-      {/*sign in with google button*/}
+      {/* Sign in with Google */}
       <TouchableOpacity
         style={styles.googleButton}
         onPress={() => authRequest && triggerAuth()}
@@ -98,93 +131,46 @@ function LoginScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 
         <Text style={styles.buttonText}>Continue with Google</Text>
       </TouchableOpacity>
 
+      {/* Sign in with GitHub */}
+      <TouchableOpacity
+        style={[styles.googleButton, { marginTop: 16, backgroundColor: '#333' }]}
+        onPress={() => githubRequest && triggerGithubAuth()}
+        disabled={!githubRequest}
+      >
+        <Text style={styles.buttonText}>Continue with GitHub</Text>
+      </TouchableOpacity>
+
       <View style={{ height: 15 }} />
 
-      {/* LOGIN BUTTON */}
-<TouchableOpacity
-  style={styles.googleButton}
-  onPress={() => navigation.navigate("LocalLogin")}
->
-  <Text style={styles.buttonText}>Login</Text>
-</TouchableOpacity>
+      {/* Local LOGIN BUTTON */}
+      <TouchableOpacity
+        style={styles.googleButton}
+        onPress={() => navigation.navigate("LocalLogin")}
+      >
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
 
-<View style={{ height: 15 }} />
+      <View style={{ height: 15 }} />
 
-{/* CREATE ACCOUNT BUTTON */}
-<TouchableOpacity
-  style={styles.googleButton}
-  onPress={() => navigation.navigate("Signup")}
->
-  <Text style={styles.buttonText}>Create Account</Text>
-</TouchableOpacity>
+      {/* CREATE ACCOUNT BUTTON */}
+      <TouchableOpacity
+        style={styles.googleButton}
+        onPress={() => navigation.navigate("Signup")}
+      >
+        <Text style={styles.buttonText}>Create Account</Text>
+      </TouchableOpacity>
 
       <StatusBar style="auto" />
     </View>
   );
 }
 
-// export default function App() {
-//   return (
-//     <NavigationContainer>
-//       <Stack.Navigator initialRouteName="Login">
-//         <Stack.Screen
-//           name="Login"
-//           component={LoginScreen}
-//           options={{ headerShown: false }}
-//         />
-
-//         {/* Use render-prop to wrap Home in an independent tree AND forward props */}
-//         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-
-//       </Stack.Navigator>
-//     </NavigationContainer>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   wrapper: {
-//     flex: 1,
-//     backgroundColor: '#F2F6FF',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     paddingHorizontal: 30,
-//   },
-//   title: {
-//     fontSize: 28,
-//     fontWeight: '700',
-//     color: '#1A237E',
-//     marginBottom: 10,
-//   },
-//   subtitle: {
-//     fontSize: 16,
-//     color: '#5C6BC0',
-//     marginBottom: 40,
-//   },
-//   googleButton: {
-//     backgroundColor: '#4285F4',
-//     paddingVertical: 14,
-//     paddingHorizontal: 40,
-//     borderRadius: 8,
-//     shadowColor: '#000',
-//     shadowOffset: { width: 0, height: 4 },
-//     shadowOpacity: 0.2,
-//     shadowRadius: 4,
-//     elevation: 3,
-//   },
-//   buttonText: {
-//     color: '#fff',
-//     fontWeight: '600',
-//     fontSize: 16,
-//   },
-// });
-// 🚩 Define your tab navigator here (no Expo Router involved)
 const Tab = createBottomTabNavigator();
 function HomeTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        // You can style tab bar here: tabBarActiveTintColor, tabBarStyle, etc.
       }}
     >
       <Tab.Screen name="HomeTab" component={HomePageScreen} options={{ title: 'Home' }} />
@@ -199,9 +185,9 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
-         <Stack.Screen name="LocalLogin" component={LocalLoginScreen} />
+        <Stack.Screen name="LocalLogin" component={LocalLoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="Home" component={HomeTabs} /> 
+        <Stack.Screen name="Home" component={HomeTabs} />
       </Stack.Navigator>
     </NavigationContainer>
   );
