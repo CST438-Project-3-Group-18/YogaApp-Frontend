@@ -13,18 +13,22 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ExploreScreen from './(tabs)/explore';
 import HomePageScreen from './(tabs)/index';
 import ProfileScreen from './(tabs)/profile';
+import LocalLoginScreen from "./locallogin";
+import SignupScreen from "./signup";
 
 WebBrowser.maybeCompleteAuthSession();
 
 export type RootStackParamList = {
   Login: undefined;
+  LocalLogin: undefined;
+  Signup: undefined;
   Home: undefined;
   Profile: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const GITHUB_CLIENT_ID = 'Ov23li6QVNUVNOswRlgd'; 
+const GITHUB_CLIENT_ID = 'Ov23li6QVNUVNOswRlgd';
 const githubDiscovery = {
   authorizationEndpoint: 'https://github.com/login/oauth/authorize',
   tokenEndpoint: 'https://github.com/login/oauth/access_token',
@@ -73,7 +77,6 @@ function LoginScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 
         const { code } = githubResponse.params as { code?: string };
         console.log('GitHub code:', code);
 
-        
         const githubUser = { provider: 'github', code };
         try {
           setCurrentUser(githubUser);
@@ -119,6 +122,7 @@ function LoginScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 
       <Text style={styles.title}>Welcome to YogaApp</Text>
       <Text style={styles.subtitle}>Sign in to continue</Text>
 
+      {/* Sign in with Google */}
       <TouchableOpacity
         style={styles.googleButton}
         onPress={() => authRequest && triggerAuth()}
@@ -127,13 +131,33 @@ function LoginScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 
         <Text style={styles.buttonText}>Continue with Google</Text>
       </TouchableOpacity>
 
-      {}
+      {/* Sign in with GitHub */}
       <TouchableOpacity
         style={[styles.googleButton, { marginTop: 16, backgroundColor: '#333' }]}
         onPress={() => githubRequest && triggerGithubAuth()}
         disabled={!githubRequest}
       >
         <Text style={styles.buttonText}>Continue with GitHub</Text>
+      </TouchableOpacity>
+
+      <View style={{ height: 15 }} />
+
+      {/* Local LOGIN BUTTON */}
+      <TouchableOpacity
+        style={styles.googleButton}
+        onPress={() => navigation.navigate("LocalLogin")}
+      >
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+
+      <View style={{ height: 15 }} />
+
+      {/* CREATE ACCOUNT BUTTON */}
+      <TouchableOpacity
+        style={styles.googleButton}
+        onPress={() => navigation.navigate("Signup")}
+      >
+        <Text style={styles.buttonText}>Create Account</Text>
       </TouchableOpacity>
 
       <StatusBar style="auto" />
@@ -161,6 +185,8 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="LocalLogin" component={LocalLoginScreen} />
+        <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="Home" component={HomeTabs} />
       </Stack.Navigator>
     </NavigationContainer>

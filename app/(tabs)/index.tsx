@@ -24,6 +24,7 @@ import Toast from 'react-native-root-toast';
 
 const API_BASE = 'http://10.0.2.2:8080';
 
+
 type Pose = {
   id?: number;
   name: string;
@@ -44,14 +45,37 @@ type SavePoseModalProps = {
 function SavePoseModal({ visible, onClose, poseId }: SavePoseModalProps) {
   const [loading, setLoading] = useState(false);
   const [collections, setCollections] = useState<Collection[]>([]);
-  const userId = 0; // TODO: replace with real user id
 
   useEffect(() => {
     if (!visible) return;
 
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/collections?userId=${userId}`, {
+        // 1️⃣ load current user from AsyncStorage
+        const stored = await AsyncStorage.getItem('@user_info');
+        if (!stored) {
+          console.warn('No @user_info found, cannot load collections for user');
+          setCollections([]);
+          return;
+        }
+
+        const parsed = JSON.parse(stored);
+        const rawId = parsed.id;
+        const userId =
+          rawId != null
+            ? typeof rawId === 'string'
+              ? Number(rawId)
+              : rawId
+            : null;
+
+        if (userId == null || Number.isNaN(userId)) {
+          console.warn('Invalid userId in @user_info:', rawId);
+          setCollections([]);
+          return;
+        }
+
+        // 2️⃣ fetch collections for that user
+        const res = await fetch(`${API_BASE}/collections/user/${userId}`, {
           headers: { Accept: 'application/json' },
         });
         const data = await res.json();
@@ -69,7 +93,7 @@ function SavePoseModal({ visible, onClose, poseId }: SavePoseModalProps) {
       const res = await fetch(`${API_BASE}/collections/${collectionId}/items`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ poseId }),
+        body: JSON.stringify({ poseId }), // poseId: currentPose.id
       });
 
       if (res.status === 201) {
@@ -181,7 +205,7 @@ function HomePageScreen() {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `token=${encodeURIComponent(token)}`,
           });
-        } catch {}
+        } catch { }
       }
       await AsyncStorage.removeItem('google_access_token');
       await AsyncStorage.removeItem('@user_info');
